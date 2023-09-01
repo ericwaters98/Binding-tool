@@ -1,0 +1,49 @@
+def build_model():
+    dropout = 0.3
+    seq_input = Input(shape=(23, 4))
+    seq_conv1 = Convolution1D(256, 5, kernel_initializer='glorot_uniform', name='seq_conv_1')(seq_input)
+    seq_act1 = Activation('relu', name='seq_activation1')(seq_conv1)
+    seq_pool1 = AveragePooling1D(2, name='seq_pooling_1')(seq_act1)
+    seq_drop1 = Dropout(dropout)(seq_pool1)
+
+    seq_conv2 = Convolution1D(256, 5, kernel_initializer='glorot_uniform', name='seq_conv_2')(seq_drop1)
+    seq_act2 = Activation('relu', name='seq_activation_2')(seq_conv2)
+    seq_pool2 = AveragePooling1D(2, name='seq_pooling_2')(seq_act2)
+    seq_drop2 = Dropout(dropout)(seq_pool2)
+    seq_flat = Flatten()(seq_drop2)
+
+    seq_dense1 = Dense(256, activation='relu', name='seq_dense_1')(seq_flat)
+    seq_drop3 = Dropout(dropout)(seq_dense1)
+    seq_dense2 = Dense(128, activation='relu', name='seq_dense_2')(seq_drop3)
+    seq_drop4 = Dropout(dropout)(seq_dense2)
+    seq_dense3 = Dense(64, activation='relu', name='seq_dense_3')(seq_drop4)
+    seq_drop5 = Dropout(dropout)(seq_dense3)
+    seq_out = Dense(40, activation='relu', name='seq_dense_4')(seq_drop5)
+
+    epi_input = Input(shape=(23, 4))
+    epi_conv1 = Convolution1D(256, 5, kernel_initializer='glorot_uniform', name='epi_conv_1')(epi_input)
+    epi_act1 = Activation('relu', name='epi_activation_1')(epi_conv1)
+    epi_pool1 = AveragePooling1D(2, name='epi_pooling_1')(epi_act1)
+    epi_drop1 = Dropout(dropout)(epi_pool1)
+
+    epi_conv2 = Convolution1D(256, 5, kernel_initializer='glorot_uniform', name='epi_conv_2')(epi_drop1)
+    epi_act2 = Activation('relu', name='epi_activation_2')(epi_conv2)
+    epi_pool2 = AveragePooling1D(2, name='epi_pooling_2')(epi_act2)
+    epi_drop2 = Dropout(dropout)(epi_pool2)
+    epi_flat = Flatten()(epi_drop2)
+
+    epi_dense1 = Dense(256, activation='relu', name='epi_dense_1')(epi_flat)
+    epi_drop3 = Dropout(dropout)(epi_dense1)
+    epi_dense2 = Dense(128, activation='relu', name='epi_dense_2')(epi_drop3)
+    epi_drop4 = Dropout(dropout)(epi_dense2)
+    epi_dense3 = Dense(64, activation='relu', name='epi_dense_3')(epi_drop4)
+    epi_drop5 = Dropout(dropout)(epi_dense3)
+    epi_out = Dense(40, activation='relu', name='epi_dense_4')(epi_drop5)
+
+    merged = concatenate([seq_out, epi_out], axis=-1)
+
+    pretrain_model = Model(inputs=[seq_input, epi_input], outputs=merged)
+
+    pretrain_model.load_weights("pretrained_model.h5")
+
+    return pretrain_model
